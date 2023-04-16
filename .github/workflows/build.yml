@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - br_team_travel_recommendation
+      - "!main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        language: [c++, java, python]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies and build
+        run: |
+          case ${{ matrix.language }} in
+            c++)
+              sudo apt-get update
+              sudo apt-get install -y build-essential cmake
+              cd cpp
+              mkdir build && cd build
+              cmake ..
+              make
+              ;;
+            java)
+              cd java
+              ./gradlew build
+              ;;
+            python)
+              cd python
+              pip install -r requirements.txt
+              python setup.py install
+              ;;
+          esac
+
