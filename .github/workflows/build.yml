@@ -1,10 +1,9 @@
 name: CI
 
 on:
-  pull_request:
+  push:
     branches:
-      - br_team_travel_recommendation
-      - "!main"
+      - main
 
 jobs:
   build:
@@ -39,3 +38,37 @@ jobs:
               ;;
           esac
 
+      - name: Run tests
+        run: |
+          case ${{ matrix.language }} in
+            c++)
+              cd cpp/build
+              ctest --verbose
+              ;;
+            java)
+              cd java
+              ./gradlew test
+              ;;
+            python)
+              cd python
+              pytest tests/
+              ;;
+          esac
+
+      - name: Deploy
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          case ${{ matrix.language }} in
+            c++)
+              cd cpp/build
+              # Do something to deploy C++ binaries
+              ;;
+            java)
+              cd java
+              # Do something to deploy Java artifacts
+              ;;
+            python)
+              cd python
+              # Do something to deploy Python packages
+              ;;
+          esac
