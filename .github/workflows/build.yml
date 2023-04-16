@@ -1,74 +1,32 @@
-name: CI
-
+name: Build Check
 on:
-  push:
-    branches:
-      - main
-
+  pull_request:
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        language: [c++, java, python]
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install dependencies and build
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+      - name: Set up C++
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+      - name: Build
         run: |
-          case ${{ matrix.language }} in
-            c++)
-              sudo apt-get update
-              sudo apt-get install -y build-essential cmake
-              cd cpp
-              mkdir build && cd build
-              cmake ..
-              make
-              ;;
-            java)
-              cd java
-              ./gradlew build
-              ;;
-            python)
-              cd python
-              pip install -r requirements.txt
-              python setup.py install
-              ;;
-          esac
-
-      - name: Run tests
-        run: |
-          case ${{ matrix.language }} in
-            c++)
-              cd cpp/build
-              ctest --verbose
-              ;;
-            java)
-              cd java
-              ./gradlew test
-              ;;
-            python)
-              cd python
-              pytest tests/
-              ;;
-          esac
-
-      - name: Deploy
-        if: success() && github.ref == 'refs/heads/main'
-        run: |
-          case ${{ matrix.language }} in
-            c++)
-              cd cpp/build
-              # Do something to deploy C++ binaries
-              ;;
-            java)
-              cd java
-              # Do something to deploy Java artifacts
-              ;;
-            python)
-              cd python
-              # Do something to deploy Python packages
-              ;;
-          esac
+          cd frontend
+          npm install
+          npm run build
+          cd ../python
+          pip install -r requirements.txt
+          python main.py
+          cd ../cxx
+          mkdir build && cd build
+          cmake .. && make -j
+          ./demo
