@@ -23,6 +23,7 @@ jobs:
         run: |
           cd frontend
           npm install
+          npm run main
           npm run build
           cd ../python
           pip install -r requirements.txt
