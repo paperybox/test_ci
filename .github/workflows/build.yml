@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '16'
+          distribution: 'adopt'
       - name: Set up C++
         run: sudo apt-get update && sudo apt-get install -y build-essential
       - name: Build
